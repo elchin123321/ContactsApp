@@ -1,7 +1,7 @@
 package com.ei.android.contactsapp.domain.contacts
 
 import com.ei.android.contactsapp.core.Abstract
-import com.ei.android.contactsapp.presentation.ContactUi
+import com.ei.android.contactsapp.presentation.contacts.ContactUi
 
 data class ContactDomain(
     private val id: String,
@@ -12,4 +12,5 @@ data class ContactDomain(
 ) : Abstract<ContactUi, ContactDomainToUiMapper> {
     override fun map(mapper: ContactDomainToUiMapper) =
         mapper.map(id, lookupKey, name, starred, photoUri)
+
 }
