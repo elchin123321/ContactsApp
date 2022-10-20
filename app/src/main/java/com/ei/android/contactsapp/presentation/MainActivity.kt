@@ -1,34 +1,70 @@
 package com.ei.android.contactsapp.presentation
 
+import android.Manifest.permission.READ_CONTACTS
+import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
-import android.view.LayoutInflater
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import com.ei.android.contactsapp.R
-import com.ei.android.contactsapp.core.ContactsApp
 import com.ei.android.contactsapp.databinding.ActivityMainBinding
 import com.ei.android.contactsapp.presentation.contacts.ContactListFragment
-import com.ei.android.contactsapp.presentation.contacts.ContactsViewModel
+import com.ei.android.contactsapp.presentation.permissions.NoPermissionFragment
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var viewModel:ContactsViewModel
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         binding = ActivityMainBinding.inflate(layoutInflater)
-        val fragment = ContactListFragment.newInstance()
-        supportFragmentManager.beginTransaction()
-            .replace(binding.fragmentHolder.id,fragment)
-            .addToBackStack(null)
-            .commit()
-        viewModel = (application as ContactsApp).viewModel
-        viewModel.observe(this){
-            Log.d("Cool",it.toString())
+        checkPermission(READ_CONTACTS)
+
+    }
+
+    private fun checkPermission(permission: String) {
+        val permissionStatus = ContextCompat.checkSelfPermission(this, permission)
+        if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
+            setFragment(ContactListFragment.newInstance())
+        } else {
+            ActivityCompat.requestPermissions(
+                this, arrayOf(permission),
+                REQUEST_CODE_PERMISSION_READ_CONTACTS
+            )
+            setFragment(NoPermissionFragment.newInstance())
         }
-        viewModel.fetchContacts()
+    }
+
+    private fun setFragment(fragment: Fragment) {
+        supportFragmentManager.beginTransaction()
+            .replace(binding.fragmentHolder.id, fragment)
+            .commit()
+    }
+
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            REQUEST_CODE_PERMISSION_READ_CONTACTS ->
+                if (grantResults.size >= 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED
+                ) {
+                    setFragment(ContactListFragment.newInstance())
+                } else {
+                    setFragment(NoPermissionFragment.newInstance())
+
+                }
+        }
+    }
+
+    companion object {
+        private const val REQUEST_CODE_PERMISSION_READ_CONTACTS = 1
     }
 
 

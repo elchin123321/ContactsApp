@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">ContactsApp</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="no_permissions">You don\'t have the necessary permissions, you can get in the settings</string>
+    <string name="go_to_settings">Go to settings</string>
+
 </resources>
