@@ -4,8 +4,6 @@ import android.Manifest.permission.READ_CONTACTS
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.ei.android.contactsapp.R
 import com.ei.android.contactsapp.databinding.ActivityMainBinding
@@ -22,22 +20,24 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         checkPermission(READ_CONTACTS)
 
+
     }
 
     private fun checkPermission(permission: String) {
-        val permissionStatus = ContextCompat.checkSelfPermission(this, permission)
+        val permissionStatus = checkSelfPermission(permission)
         if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
             setFragment(ContactListFragment.newInstance())
         } else {
-            ActivityCompat.requestPermissions(
-                this, arrayOf(permission),
+            requestPermissions(
+                arrayOf(permission),
                 REQUEST_CODE_PERMISSION_READ_CONTACTS
             )
-            setFragment(NoPermissionFragment.newInstance())
+           setFragment(NoPermissionFragment.newInstance(permission))
+
         }
     }
 
-    private fun setFragment(fragment: Fragment) {
+   fun setFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction()
             .replace(binding.fragmentHolder.id, fragment)
             .commit()
@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity() {
                 ) {
                     setFragment(ContactListFragment.newInstance())
                 } else {
-                    setFragment(NoPermissionFragment.newInstance())
+                    setFragment(NoPermissionFragment.newInstance(READ_CONTACTS))
 
                 }
         }

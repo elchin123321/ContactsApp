@@ -2,6 +2,7 @@ package com.ei.android.contactsapp.data.contacts
 
 import android.content.ContentResolver
 import android.content.Context
+import android.net.Uri
 import android.provider.ContactsContract
 import android.util.Log
 import java.lang.Exception
@@ -21,7 +22,8 @@ class ContactsDataSource(private val context: Context) {
         photoUri
     )
 
-     fun fetchContacts():List<ContactData> {
+    fun fetchContacts(filter: String = ""): List<ContactData> {
+        val filterUri = Uri.parse(ContactsContract.Contacts.CONTENT_FILTER_URI.toString())
         val contacts = mutableListOf<ContactData>()
         val contentResolver = context.contentResolver
         val cursor = contentResolver.query(
@@ -31,23 +33,19 @@ class ContactsDataSource(private val context: Context) {
             null,
             null
         )
-        Log.d("SUPER",cursor?.columnCount.toString())
         cursor?.let {
             while (cursor.moveToNext()) {
-                try{
-                        contacts.add(
-                            ContactData(
-                                cursor.getString(cursor.getColumnIndexOrThrow(id)),
-                                cursor.getString(cursor.getColumnIndexOrThrow(lookupKey)),
-                                cursor.getString(cursor.getColumnIndexOrThrow(name)),
-                                cursor.getInt(cursor.getColumnIndexOrThrow(starred)),
-                                cursor.getString(cursor.getColumnIndexOrThrow(photoUri)),
-                            )
+                try {
+                    contacts.add(
+                        ContactData(
+                            cursor.getString(cursor.getColumnIndexOrThrow(id)),
+                            cursor.getString(cursor.getColumnIndexOrThrow(lookupKey)),
+                            cursor.getString(cursor.getColumnIndexOrThrow(name)),
+                            cursor.getInt(cursor.getColumnIndexOrThrow(starred)),
+                            cursor.getString(cursor.getColumnIndexOrThrow(photoUri)),
                         )
-                    Log.d("SUPER","DATA ADDED")
-                }
-                catch (e:Exception){
-                    Log.d("SUPERSUPER",e.message.toString())
+                    )
+                } catch (e: Exception) {
 
                 }
             }
