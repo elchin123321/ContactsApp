@@ -1,36 +1,33 @@
 package com.ei.android.contactsapp.data.contacts
 
-import android.content.ContentResolver
+import android.content.ContentValues
 import android.content.Context
-import android.net.Uri
 import android.provider.ContactsContract
-import android.util.Log
-import java.lang.Exception
-import java.lang.RuntimeException
 
 class ContactsDataSource(private val context: Context) {
-    private val id = ContactsContract.Contacts._ID
+    private val idContact = ContactsContract.Contacts._ID
     private val lookupKey = ContactsContract.Contacts.LOOKUP_KEY
     private val name = ContactsContract.Contacts.DISPLAY_NAME_PRIMARY
     private val starred = ContactsContract.Contacts.STARRED
     private val photoUri = ContactsContract.Contacts.PHOTO_URI
     private val projection = arrayOf(
-        id,
+        idContact,
         lookupKey,
         name,
         starred,
         photoUri
     )
+    private val contentResolver = context.contentResolver
 
-    fun fetchContacts(filter: String = ""): List<ContactData> {
-        val filterUri = Uri.parse(ContactsContract.Contacts.CONTENT_FILTER_URI.toString())
+    fun fetchContacts(onlyStared: Boolean): List<ContactData> {
         val contacts = mutableListOf<ContactData>()
-        val contentResolver = context.contentResolver
+        val selection = if (onlyStared) "$starred = ?" else null
+        val selectionArgs = if (onlyStared) arrayOf(STARRED.toString()) else null
         val cursor = contentResolver.query(
             ContactsContract.Contacts.CONTENT_URI,
             projection,
-            null,
-            null,
+            selection,
+            selectionArgs,
             null
         )
         cursor?.let {
@@ -38,7 +35,7 @@ class ContactsDataSource(private val context: Context) {
                 try {
                     contacts.add(
                         ContactData(
-                            cursor.getString(cursor.getColumnIndexOrThrow(id)),
+                            cursor.getString(cursor.getColumnIndexOrThrow(idContact)),
                             cursor.getString(cursor.getColumnIndexOrThrow(lookupKey)),
                             cursor.getString(cursor.getColumnIndexOrThrow(name)),
                             cursor.getInt(cursor.getColumnIndexOrThrow(starred)),
@@ -52,6 +49,28 @@ class ContactsDataSource(private val context: Context) {
         }
         cursor?.close()
         return contacts
+    }
+
+
+
+    fun changeStar(id: String, starred: Boolean): Boolean {
+        val contentValue = ContentValues()
+        contentValue.put(ContactsContract.Contacts.STARRED, if (starred) UNSTARRED else STARRED)
+        val selection = "$lookupKey = ?"
+        val selectionArgs = arrayOf(id)
+        val cursor = contentResolver.update(
+            ContactsContract.Contacts.CONTENT_URI,
+            contentValue,
+            selection,
+            selectionArgs,
+        )
+        return cursor != 0
+    }
+
+    companion object {
+        private const val STARRED = 1
+        private const val UNSTARRED = 0
+
     }
 
 

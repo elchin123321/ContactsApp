@@ -7,19 +7,18 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.ei.android.contactsapp.core.ContactsApp
-import com.ei.android.contactsapp.databinding.FragmentContactListBinding
+import com.ei.android.contactsapp.databinding.FragmentStarredContactListBinding
 import com.ei.android.contactsapp.presentation.contacts.adapter.ContactAdapter
 import java.lang.RuntimeException
 
 
-class ContactListFragment : Fragment() {
+class StarredContactListFragment : Fragment() {
 
     private lateinit var viewModel: ContactsViewModel
 
-    private var _binding:FragmentContactListBinding? = null
-    private val binding:FragmentContactListBinding
+    private var _binding: FragmentStarredContactListBinding? = null
+    private val binding: FragmentStarredContactListBinding
         get() = _binding?:throw RuntimeException("FragmentBinding = null")
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,7 +29,7 @@ class ContactListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentContactListBinding.inflate(inflater)
+        _binding = FragmentStarredContactListBinding.inflate(inflater)
         return binding.root
     }
 
@@ -38,19 +37,16 @@ class ContactListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val adapter = ContactAdapter (object : ContactAdapter.OnStarredClickListener{
             override fun onClickListener(id: String, starred: Boolean) {
-                viewModel.changeStar(id,starred)
-                viewModel.fetchContacts()
+                    viewModel.changeStar(id, starred,true)
             }
-
-
         })
         binding.contactList.adapter = adapter
         (binding.contactList.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
-
-        viewModel.observeContacts(this){
+        viewModel.observeStarredContacts(this){
             adapter.submitList(it)
         }
-        viewModel.fetchContacts()
+
+        viewModel.fetchContacts(true)
 
     }
 
@@ -61,7 +57,8 @@ class ContactListFragment : Fragment() {
 
     companion object {
 
+        @JvmStatic
         fun newInstance() =
-            ContactListFragment()
+            StarredContactListFragment()
     }
 }

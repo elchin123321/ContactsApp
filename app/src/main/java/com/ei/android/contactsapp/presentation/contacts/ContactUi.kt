@@ -1,6 +1,7 @@
 package com.ei.android.contactsapp.presentation.contacts
 
 import com.ei.android.contactsapp.core.Abstract
+import com.ei.android.contactsapp.presentation.contacts.adapter.ContactAdapter
 import com.ei.android.contactsapp.presentation.contacts.adapter.ToUiMapper
 
 data class ContactUi(
@@ -12,4 +13,5 @@ data class ContactUi(
 ):Abstract<Unit, ToUiMapper> {
 
     override fun map(mapper: ToUiMapper) = mapper.map(name, starred, photoUri)
+    fun changeStar(listener:ContactAdapter.OnStarredClickListener) = listener.onClickListener(lookupKey,starred)
 }

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/page_favorites"
+        android:enabled="true"
+        android:icon="@drawable/ic_star_filled"
+        android:title="@string/text_starred_label"/>
+    <item
+        android:id="@+id/page_contacts"
+        android:enabled="true"
+        android:icon="@drawable/ic_contacts"
+        android:title="@string/text_contacts_label"/>
+
+</menu>

@@ -12,18 +12,38 @@ class ContactsViewModel(
 ): ViewModel() {
 
     private val contacts = MutableLiveData<List<ContactUi>>()
+    private val starredContacts = MutableLiveData<List<ContactUi>>()
 
-    fun fetchContacts(){
+
+
+    fun fetchContacts(onlyStarred:Boolean = false){
         viewModelScope.launch(Dispatchers.IO) {
-            val resultDomain = interactor.fetchContacts()
+            val resultDomain = interactor.fetchContacts(onlyStarred)
             val resultUi = mapper.map(resultDomain)
             withContext(Dispatchers.Main){
-                contacts.value = resultUi
+                if(onlyStarred)
+                    starredContacts.value = resultUi
+                else
+                    contacts.value = resultUi
+
+            }
+        }
+    }
+    fun changeStar(id:String, starred:Boolean,onlyStarred: Boolean = false){
+        viewModelScope.launch(Dispatchers.IO) {
+            val success = interactor.changeStar(id,starred)
+            if(success){
+                fetchContacts(onlyStarred)
             }
         }
     }
 
-    fun observe(owner: LifecycleOwner,observer: Observer<List<ContactUi>>){
+
+    fun observeContacts(owner: LifecycleOwner, observer: Observer<List<ContactUi>>){
         contacts.observe(owner, observer)
+    }
+
+    fun observeStarredContacts(owner: LifecycleOwner, observer: Observer<List<ContactUi>>){
+        starredContacts.observe(owner, observer)
     }
 }
